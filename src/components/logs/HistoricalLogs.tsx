@@ -1,0 +1,49 @@
+"use client";
+
+import Link from "next/link";
+import { usePolling } from "@/lib/usePolling";
+import type { SignalsResponse } from "@/lib/types";
+import { sentimentStyle, signalId } from "@/lib/signal-style";
+
+export default function HistoricalLogs({ initialData }: { initialData: SignalsResponse }) {
+  const { data } = usePolling<SignalsResponse>("/api/signals", 30_000, initialData, {
+    fetchImmediately: initialData.signals.length === 0,
+  });
+  const signals = data.signals ?? [];
+
+  if (signals.length === 0) {
+    return <p className="px-4 py-8 text-center text-sm text-muted">No signal history yet.</p>;
+  }
+
+  return (
+    <div className="mx-auto w-full max-w-2xl px-4 py-4 lg:max-w-3xl">
+      <p className="mb-3 text-[11px] text-muted">
+        Timestamps show time-of-day only (the backend doesn&apos;t record a date per signal
+        yet), so this reflects the current in-memory history, not a multi-day archive.
+      </p>
+      <div className="relative flex flex-col gap-4 border-l border-border pl-4">
+        {signals.map((s, i) => {
+          const style = sentimentStyle(s.Sentiment);
+          return (
+            <Link
+              key={`${signalId(s)}-${i}`}
+              href={`/signals/${signalId(s)}`}
+              className="relative block"
+            >
+              <span
+                className={`absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full ${style.dot}`}
+              />
+              <p className="text-xs text-muted">{s.Timestamp}</p>
+              <p className="mt-0.5 text-sm font-semibold text-foreground">{s.Headline}</p>
+              <span
+                className={`mt-1 inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-bold ${style.border} ${style.bg} ${style.text}`}
+              >
+                {style.label}
+              </span>
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
