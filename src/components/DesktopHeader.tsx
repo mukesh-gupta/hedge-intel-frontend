@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Search, TrendingUp, TrendingDown } from "lucide-react";
 import { usePolling } from "@/lib/usePolling";
-import type { TickerBarResponse } from "@/lib/types";
+import { hasTickerData, type TickerBarResponse } from "@/lib/types";
 import LiveClock from "@/components/ui/LiveClock";
 import NotificationBell from "@/components/NotificationBell";
 
@@ -42,25 +42,27 @@ export default function DesktopHeader({ initialTicker }: { initialTicker: Ticker
       </form>
 
       <div className="flex flex-1 items-center gap-5 overflow-x-auto">
-        {ticker.ticker_bar.map((row) => {
-          const negative = isNegative(row.data.change_percent);
-          return (
-            <div key={row.symbol} className="flex shrink-0 items-baseline gap-1.5 text-xs">
-              <span className="font-semibold text-muted">{row.label}</span>
-              <span className="font-mono text-foreground">
-                {row.data.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-              </span>
-              <span
-                className={`flex items-center gap-0.5 font-semibold ${
-                  negative ? "text-bearish" : "text-bullish"
-                }`}
-              >
-                {negative ? <TrendingDown size={11} /> : <TrendingUp size={11} />}
-                {row.data.change_percent}
-              </span>
-            </div>
-          );
-        })}
+        {ticker.ticker_bar
+          .filter(hasTickerData)
+          .map((row) => {
+            const negative = isNegative(row.data.change_percent);
+            return (
+              <div key={row.symbol} className="flex shrink-0 items-baseline gap-1.5 text-xs">
+                <span className="font-semibold text-muted">{row.label}</span>
+                <span className="font-mono text-foreground">
+                  {row.data.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                </span>
+                <span
+                  className={`flex items-center gap-0.5 font-semibold ${
+                    negative ? "text-bearish" : "text-bullish"
+                  }`}
+                >
+                  {negative ? <TrendingDown size={11} /> : <TrendingUp size={11} />}
+                  {row.data.change_percent}
+                </span>
+              </div>
+            );
+          })}
       </div>
 
       <LiveClock className="shrink-0 text-xs text-muted" />

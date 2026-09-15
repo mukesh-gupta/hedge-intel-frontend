@@ -8,12 +8,20 @@ export interface StatusResponse {
 export interface TickerEntry {
   symbol: string;
   label: string;
+  // The backend can return null here when the underlying price fetch for
+  // this symbol failed (e.g. a transient yfinance error) — always guard.
   data: {
     price: number;
     change_percent: string;
     rsi: number;
     as_of: string;
-  };
+  } | null;
+}
+
+export type TickerEntryWithData = TickerEntry & { data: NonNullable<TickerEntry["data"]> };
+
+export function hasTickerData(entry: TickerEntry): entry is TickerEntryWithData {
+  return entry.data !== null;
 }
 
 export interface TickerBarResponse {

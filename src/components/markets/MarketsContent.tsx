@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { usePolling } from "@/lib/usePolling";
-import type { TickerBarResponse, MarketDataResponse, SectorsResponse } from "@/lib/types";
+import { hasTickerData, type TickerBarResponse, type MarketDataResponse, type SectorsResponse } from "@/lib/types";
 import { MARKET_TABS, MARKET_DATA_CATEGORY, type MarketCategory } from "@/lib/market-categories";
 import Sparkline from "@/components/ui/Sparkline";
 
@@ -78,7 +78,7 @@ function CryptoPanel({ initialTicker }: { initialTicker: TickerBarResponse }) {
   const { data } = usePolling<TickerBarResponse>("/api/ticker-bar", 20_000, initialTicker, {
     fetchImmediately: initialTicker.ticker_bar.length === 0,
   });
-  const rows = data.ticker_bar.filter((t) => t.symbol === "BTC-USD");
+  const rows = data.ticker_bar.filter((t) => t.symbol === "BTC-USD").filter(hasTickerData);
 
   if (rows.length === 0) {
     return <p className="py-8 text-center text-sm text-muted">No crypto data available.</p>;
