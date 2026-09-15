@@ -65,9 +65,23 @@ export function usePolling<T>(
   useEffect(() => {
     if (fetchImmediately) fetchNow();
     const id = setInterval(() => {
-      if (liveEnabled.current) fetchNow();
+      // Skip the network call while the tab is hidden/backgrounded — an
+      // open tab polling every few seconds keeps the backend continuously
+      // busy, which on a free hosting tier (e.g. Render's 750 free
+      // instance-hours/month) prevents it from ever spinning down while
+      // idle. Resuming on visibilitychange below covers "user comes back".
+      if (liveEnabled.current && document.visibilityState === "visible") fetchNow();
     }, intervalMs);
-    return () => clearInterval(id);
+
+    function onVisible() {
+      if (document.visibilityState === "visible") fetchNow();
+    }
+    document.addEventListener("visibilitychange", onVisible);
+
+    return () => {
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [url, intervalMs, fetchImmediately]);
 
