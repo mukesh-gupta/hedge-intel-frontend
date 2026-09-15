@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Bell } from "lucide-react";
 import { useNotifications } from "@/lib/useNotifications";
-import { sentimentStyle, signalId } from "@/lib/signal-style";
+import { sentimentStyle, signalId, formatSignalTime } from "@/lib/signal-style";
 
 export default function NotificationBell({ className }: { className?: string }) {
   const [open, setOpen] = useState(false);
@@ -72,7 +72,7 @@ export default function NotificationBell({ className }: { className?: string }) 
                           {s.Headline}
                         </p>
                         <p className="text-[11px] text-muted">
-                          {s.Timestamp} · {s.Sector}
+                          {formatSignalTime(s.Timestamp)} · {s.Sector}
                         </p>
                       </div>
                     </Link>

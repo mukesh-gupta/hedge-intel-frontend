@@ -76,3 +76,27 @@ export function signalId(signal: Signal): string {
 export function findSignalById(signals: Signal[], id: string): Signal | undefined {
   return signals.find((s) => signalId(s) === id);
 }
+
+/** Signal.Timestamp is now the article's real RSS publish time as UTC ISO
+ * 8601 (e.g. "2026-09-15T11:28:39Z"), not a pre-formatted local-time string
+ * — so it can be rendered in whichever timezone the viewer's browser is in,
+ * rather than baked into a fixed server-side format. Falls back to the raw
+ * string for older signals still in history from before this format
+ * changed (those used a plain "07:34:00 AM"-style string, not parseable as
+ * a real date). */
+export function formatSignalTime(timestamp: string): string {
+  const date = new Date(timestamp);
+  if (Number.isNaN(date.getTime())) return timestamp;
+  return date.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+}
+
+export function formatSignalDateTime(timestamp: string): string {
+  const date = new Date(timestamp);
+  if (Number.isNaN(date.getTime())) return timestamp;
+  return date.toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}

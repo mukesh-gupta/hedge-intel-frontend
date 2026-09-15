@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Star } from "lucide-react";
 import { useSignals } from "@/lib/SignalsProvider";
-import { sentimentStyle, signalId } from "@/lib/signal-style";
+import { sentimentStyle, signalId, formatSignalTime } from "@/lib/signal-style";
 import { useStarred } from "@/lib/useStarred";
 import { TickerChip } from "@/components/ui/Badge";
 
@@ -74,7 +74,7 @@ export default function SignalsFeedList({ initialQuery = "" }: { initialQuery?: 
               className="rounded-xl border border-border bg-surface p-3.5"
             >
               <div className="flex items-start justify-between gap-2">
-                <span className="text-xs text-muted">{s.Timestamp}</span>
+                <span className="text-xs text-muted">{formatSignalTime(s.Timestamp)}</span>
                 <button
                   onClick={() => toggle(id)}
                   aria-label="Star signal"

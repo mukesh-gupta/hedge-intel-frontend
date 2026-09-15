@@ -13,7 +13,7 @@ import type {
   SectorsResponse,
   WatchlistResponse,
 } from "@/lib/types";
-import { sentimentStyle, signalId } from "@/lib/signal-style";
+import { sentimentStyle, signalId, formatSignalTime } from "@/lib/signal-style";
 import { aggregateSentiment } from "@/lib/sentiment-aggregate";
 import { useStarred } from "@/lib/useStarred";
 import { TickerChip } from "@/components/ui/Badge";
@@ -108,7 +108,7 @@ function LatestSignalCard({ signal }: { signal: Signal }) {
         >
           <Star size={12} /> {style.label}
         </span>
-        <span className="text-xs text-muted">{signal.Timestamp}</span>
+        <span className="text-xs text-muted">{formatSignalTime(signal.Timestamp)}</span>
       </div>
 
       <h2 className="mt-2 text-base font-semibold text-foreground">{signal.Headline}</h2>
@@ -309,7 +309,7 @@ function RecentSignalsCard({ signals }: { signals: Signal[] }) {
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-foreground">{s.Headline}</p>
                 <p className="text-[11px] text-muted">
-                  {s.Timestamp} · {s.Sector}
+                  {formatSignalTime(s.Timestamp)} · {s.Sector}
                 </p>
               </div>
             </Link>

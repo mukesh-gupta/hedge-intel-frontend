@@ -2,7 +2,12 @@
 
 import { Star, Share2 } from "lucide-react";
 import { useSignals } from "@/lib/SignalsProvider";
-import { sentimentStyle, sentimentConfidence, findSignalById } from "@/lib/signal-style";
+import {
+  sentimentStyle,
+  sentimentConfidence,
+  findSignalById,
+  formatSignalDateTime,
+} from "@/lib/signal-style";
 import { useStarred } from "@/lib/useStarred";
 import { TickerChip } from "@/components/ui/Badge";
 import ScreenHeader from "@/components/ScreenHeader";
@@ -44,7 +49,7 @@ export default function SignalDetailContent({ id }: { id: string }) {
     <>
       <ScreenHeader
         title="Signal Details"
-        eyebrow={`${signal.Timestamp} · ${signal.Sector}`}
+        eyebrow={`${formatSignalDateTime(signal.Timestamp)} · ${signal.Sector}`}
         back="/signals"
         right={
           <div className="flex items-center gap-3">
