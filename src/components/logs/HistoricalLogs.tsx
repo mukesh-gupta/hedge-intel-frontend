@@ -1,15 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePolling } from "@/lib/usePolling";
-import type { SignalsResponse } from "@/lib/types";
+import { useSignals } from "@/lib/SignalsProvider";
 import { sentimentStyle, signalId } from "@/lib/signal-style";
 
-export default function HistoricalLogs({ initialData }: { initialData: SignalsResponse }) {
-  const { data } = usePolling<SignalsResponse>("/api/signals", 30_000, initialData, {
-    fetchImmediately: initialData.signals.length === 0,
-  });
-  const signals = data.signals ?? [];
+export default function HistoricalLogs() {
+  const { signals } = useSignals();
 
   if (signals.length === 0) {
     return <p className="px-4 py-8 text-center text-sm text-muted">No signal history yet.</p>;

@@ -3,27 +3,23 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
-import { usePolling } from "@/lib/usePolling";
-import type { SignalsResponse } from "@/lib/types";
+import { useSignals } from "@/lib/SignalsProvider";
 import { categoryStyle, signalId } from "@/lib/signal-style";
 
-export default function ChatFeedContent({ initialData }: { initialData: SignalsResponse }) {
-  const { data } = usePolling<SignalsResponse>("/api/signals", 30_000, initialData, {
-    fetchImmediately: initialData.signals.length === 0,
-  });
+export default function ChatFeedContent() {
+  const { signals } = useSignals();
   const [category, setCategory] = useState<string>("All");
 
   const categories = useMemo(() => {
     const set = new Set<string>();
-    for (const s of data.signals ?? []) set.add(s.Category || "Signal");
+    for (const s of signals) set.add(s.Category || "Signal");
     return ["All", ...set];
-  }, [data]);
+  }, [signals]);
 
   const items = useMemo(() => {
-    const all = data.signals ?? [];
-    if (category === "All") return all;
-    return all.filter((s) => (s.Category || "Signal") === category);
-  }, [data, category]);
+    if (category === "All") return signals;
+    return signals.filter((s) => (s.Category || "Signal") === category);
+  }, [signals, category]);
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-3 px-4 py-4 lg:max-w-3xl">

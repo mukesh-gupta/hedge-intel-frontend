@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ChevronRight, ExternalLink, Star, TrendingUp, TrendingDown } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 import { usePolling } from "@/lib/usePolling";
+import { useSignals } from "@/lib/SignalsProvider";
 import type {
   Signal,
   SignalsResponse,
@@ -320,26 +321,22 @@ function RecentSignalsCard({ signals }: { signals: Signal[] }) {
 }
 
 export default function HomeContent({
-  initialSignals,
   initialIndices,
   initialForex,
   initialRegime,
   initialSectors,
   initialWatchlist,
 }: {
-  initialSignals: SignalsResponse;
   initialIndices: MarketDataResponse;
   initialForex: MarketDataResponse;
   initialRegime: MarketRegimeResponse | null;
   initialSectors: SectorsResponse;
   initialWatchlist: WatchlistResponse;
 }) {
-  const { data: signals } = usePolling<SignalsResponse>("/api/signals", 30_000, initialSignals, {
-    fetchImmediately: initialSignals.signals.length === 0,
-  });
+  const { signals } = useSignals();
 
-  const topSignal = signals.signals[0];
-  const recentSignals = signals.signals.slice(0, 4);
+  const topSignal = signals[0];
+  const recentSignals = signals.slice(0, 4);
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 py-4 lg:max-w-7xl lg:gap-5 lg:px-8">
@@ -374,12 +371,12 @@ export default function HomeContent({
         </div>
       )}
 
-      <SentimentOverviewCard signals={signals.signals ?? []} />
+      <SentimentOverviewCard signals={signals} />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <TopMovers initialData={initialWatchlist} />
         <RecentSignalsCard signals={recentSignals} />
-        <AIFeedPreview signals={signals.signals ?? []} />
+        <AIFeedPreview signals={signals} />
       </div>
     </div>
   );

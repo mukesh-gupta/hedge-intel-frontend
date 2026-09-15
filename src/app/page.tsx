@@ -1,6 +1,5 @@
 import { backendFetch } from "@/lib/backend";
 import type {
-  SignalsResponse,
   MarketDataResponse,
   MarketRegimeResponse,
   SectorsResponse,
@@ -17,13 +16,10 @@ async function safe<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
 }
 
 export default async function Home() {
-  // Fetched in parallel and server-rendered so every widget has real data on
-  // first paint instead of fetching client-side after hydration.
-  const [signals, indices, forex, regime, sectors, watchlist] = await Promise.all([
-    safe<SignalsResponse>(
-      () => backendFetch<SignalsResponse>("/api/signals", { revalidateSeconds: 30 }),
-      { signals: [] }
-    ),
+  // Signals come from the app-wide SignalsProvider (see layout.tsx) so every
+  // screen shares one source of truth. Fetched in parallel and
+  // server-rendered so every other widget has real data on first paint too.
+  const [indices, forex, regime, sectors, watchlist] = await Promise.all([
     safe<MarketDataResponse>(
       () =>
         backendFetch<MarketDataResponse>("/api/market-data?category=indices&history=true", {
@@ -55,7 +51,6 @@ export default async function Home() {
 
   return (
     <HomeContent
-      initialSignals={signals}
       initialIndices={indices}
       initialForex={forex}
       initialRegime={regime}

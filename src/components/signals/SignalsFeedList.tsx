@@ -3,30 +3,21 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Star } from "lucide-react";
-import { usePolling } from "@/lib/usePolling";
-import type { SignalsResponse } from "@/lib/types";
+import { useSignals } from "@/lib/SignalsProvider";
 import { sentimentStyle, signalId } from "@/lib/signal-style";
 import { useStarred } from "@/lib/useStarred";
 import { TickerChip } from "@/components/ui/Badge";
 
 const FILTERS = ["All", "Bullish", "Bearish", "Strong"] as const;
 
-export default function SignalsFeedList({
-  initialData,
-  initialQuery = "",
-}: {
-  initialData: SignalsResponse;
-  initialQuery?: string;
-}) {
-  const { data } = usePolling<SignalsResponse>("/api/signals", 30_000, initialData, {
-    fetchImmediately: initialData.signals.length === 0,
-  });
+export default function SignalsFeedList({ initialQuery = "" }: { initialQuery?: string }) {
+  const { signals: allSignals } = useSignals();
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>("All");
   const { starred, toggle } = useStarred();
   const query = initialQuery.trim().toLowerCase();
 
   const signals = useMemo(() => {
-    let all = data.signals ?? [];
+    let all = allSignals;
     if (filter === "Strong") all = all.filter((s) => s.Sentiment.toUpperCase().includes("STRONG"));
     else if (filter !== "All")
       all = all.filter((s) => s.Sentiment.toUpperCase().includes(filter.toUpperCase()));
@@ -40,7 +31,7 @@ export default function SignalsFeedList({
       );
     }
     return all;
-  }, [data, filter, query]);
+  }, [allSignals, filter, query]);
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-3 px-4 py-4 lg:max-w-4xl">

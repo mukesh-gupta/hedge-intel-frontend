@@ -1,20 +1,21 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { usePolling } from "./usePolling";
+import { useSignals } from "./SignalsProvider";
 import { signalId } from "./signal-style";
-import type { SignalsResponse, Signal } from "./types";
+import type { Signal } from "./types";
 
 const STORAGE_KEY = "hedge-intel:last-seen-signal-id";
 
 /**
- * Real notifications, not a decorative badge: polls /api/signals (same data
- * every other screen uses) and treats anything newer than the last id the
- * user acknowledged as "unread". trade_history is inserted newest-first by
- * the backend, so "newer" just means "appears before the last-seen id".
+ * Real notifications, not a decorative badge: reads the same shared
+ * /api/signals data every other screen uses (via SignalsProvider) and
+ * treats anything newer than the last id the user acknowledged as "unread".
+ * trade_history is inserted newest-first by the backend, so "newer" just
+ * means "appears before the last-seen id".
  */
 export function useNotifications() {
-  const { data } = usePolling<SignalsResponse>("/api/signals", 30_000, { signals: [] });
+  const { signals } = useSignals();
   const [lastSeenId, setLastSeenId] = useState<string | null | undefined>(undefined);
 
   // Read the persisted marker once, client-only.
@@ -26,8 +27,6 @@ export function useNotifications() {
       setLastSeenId(null);
     }
   }, []);
-
-  const signals = useMemo(() => data.signals ?? [], [data]);
 
   const unread: Signal[] = useMemo(() => {
     if (lastSeenId === undefined) return []; // marker not loaded yet

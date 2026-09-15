@@ -1,25 +1,16 @@
 "use client";
 
 import { Star, Share2 } from "lucide-react";
-import { usePolling } from "@/lib/usePolling";
-import type { SignalsResponse } from "@/lib/types";
+import { useSignals } from "@/lib/SignalsProvider";
 import { sentimentStyle, sentimentConfidence, findSignalById } from "@/lib/signal-style";
 import { useStarred } from "@/lib/useStarred";
 import { TickerChip } from "@/components/ui/Badge";
 import ScreenHeader from "@/components/ScreenHeader";
 
-export default function SignalDetailContent({
-  id,
-  initialData,
-}: {
-  id: string;
-  initialData: SignalsResponse;
-}) {
-  const { data } = usePolling<SignalsResponse>("/api/signals", 30_000, initialData, {
-    fetchImmediately: initialData.signals.length === 0,
-  });
+export default function SignalDetailContent({ id }: { id: string }) {
+  const { signals } = useSignals();
   const { starred, toggle } = useStarred();
-  const signal = findSignalById(data.signals ?? [], id);
+  const signal = findSignalById(signals, id);
 
   if (!signal) {
     return (
