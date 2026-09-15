@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Plus, Trash2, TrendingUp, TrendingDown } from "lucide-react";
 import { usePolling } from "@/lib/usePolling";
+import { useWatchlistStream } from "@/lib/useWatchlistStream";
+import { toFinnhubSymbol, liveChangePercent } from "@/lib/finnhub-symbol";
 import type { WatchlistResponse } from "@/lib/types";
 
 function isNegative(changePercent: string) {
@@ -16,6 +18,7 @@ export default function WatchlistContent({ initialData }: { initialData: Watchli
     initialData,
     { fetchImmediately: initialData.watchlist.length === 0 }
   );
+  const live = useWatchlistStream();
   const [symbol, setSymbol] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
@@ -83,14 +86,29 @@ export default function WatchlistContent({ initialData }: { initialData: Watchli
       ) : (
         <div className="flex flex-col gap-2">
           {data.watchlist.map((t) => {
-            const negative = isNegative(t.change_percent);
+            const finnhubSymbol = toFinnhubSymbol(t.symbol);
+            const tick = finnhubSymbol ? live[finnhubSymbol] : undefined;
+            const price = tick?.price ?? t.price;
+            const changePercent = tick
+              ? liveChangePercent(t.price, t.change_percent, tick.price)
+              : t.change_percent;
+            const negative = isNegative(changePercent);
+
             return (
               <div
                 key={t.symbol}
                 className="flex items-center justify-between rounded-lg border border-border bg-surface p-3"
               >
                 <div>
-                  <p className="text-sm font-semibold text-foreground">{t.label}</p>
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-sm font-semibold text-foreground">{t.label}</p>
+                    {tick && (
+                      <span
+                        className="h-1.5 w-1.5 animate-pulse rounded-full bg-bullish"
+                        title="Live"
+                      />
+                    )}
+                  </div>
                   {t.rsi !== undefined && (
                     <p className="text-[11px] text-muted">RSI {t.rsi.toFixed(1)}</p>
                   )}
@@ -98,7 +116,7 @@ export default function WatchlistContent({ initialData }: { initialData: Watchli
                 <div className="flex items-center gap-3">
                   <div className="text-right">
                     <p className="font-mono text-sm font-semibold text-foreground">
-                      {t.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                      {price.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                     </p>
                     <p
                       className={`flex items-center justify-end gap-1 text-xs font-semibold ${
@@ -106,7 +124,7 @@ export default function WatchlistContent({ initialData }: { initialData: Watchli
                       }`}
                     >
                       {negative ? <TrendingDown size={12} /> : <TrendingUp size={12} />}
-                      {t.change_percent}
+                      {changePercent}
                     </p>
                   </div>
                   <button
