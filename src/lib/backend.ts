@@ -1,4 +1,8 @@
 const BASE_URL = process.env.HEDGE_API_BASE_URL ?? "http://127.0.0.1:8000";
+// Must match the backend's ADMIN_TOKEN, which guards its write endpoints (settings,
+// watchlist edits, scans). Server-only env var: never prefixed NEXT_PUBLIC_, so it
+// never reaches the browser.
+const ADMIN_TOKEN = process.env.HEDGE_API_ADMIN_TOKEN;
 
 export class BackendError extends Error {
   status: number;
@@ -22,6 +26,7 @@ export async function backendFetch<T>(
     ...rest,
     headers: {
       Accept: "application/json",
+      ...(ADMIN_TOKEN ? { "X-Admin-Token": ADMIN_TOKEN } : {}),
       ...(rest.headers ?? {}),
     },
     next: revalidateSeconds !== undefined ? { revalidate: revalidateSeconds } : undefined,
