@@ -58,6 +58,19 @@ export interface Signal {
   "Key Takeaways": string[];
   Source: string;
   "Article Link": string;
+  // Everything below was added by the backend's triage pipeline. Signals still
+  // in history from before it (up to 7 days) have none of these — always guard.
+  /** AI triage score, 1-10: how much the headline is likely to move a price. */
+  Impact?: number | null;
+  /** "Deep" = full AI analysis with price data. "Quick" = built from the triage
+   * score alone: direction and tickers, but no strategy, summary or price data. */
+  Analysis?: "Quick" | "Deep";
+  /** Market mainly affected: Global, India, Commodities, Forex or Crypto. */
+  Region?: string | null;
+  /** Quick signals only: all validated tickers, including when direction is mixed. */
+  Tickers?: string;
+  /** Deep signals only: one-sentence plain-language explanation. */
+  Summary?: string | null;
 }
 
 export interface SignalsResponse {

@@ -7,10 +7,16 @@ import {
   sentimentConfidence,
   findSignalById,
   formatSignalDateTime,
+  impactStyle,
+  isQuickSignal,
+  signalTickers,
 } from "@/lib/signal-style";
 import { useStarred } from "@/lib/useStarred";
 import { TickerChip } from "@/components/ui/Badge";
 import ScreenHeader from "@/components/ScreenHeader";
+
+// Same size as the sentiment chip beside it (one step larger than the feed's badges).
+const DETAIL_CHIP = "inline-flex w-fit items-center rounded-md border px-2 py-1 text-xs font-semibold";
 
 export default function SignalDetailContent({ id }: { id: string }) {
   const { signals } = useSignals();
@@ -31,10 +37,11 @@ export default function SignalDetailContent({ id }: { id: string }) {
   const style = sentimentStyle(signal.Sentiment);
   const confidence = sentimentConfidence(signal.Sentiment);
   const isStarred = starred.has(id);
-  const affectedAssets = [
-    ...signal["Buy Tickers"].split(",").map((t) => t.trim()),
-    ...signal["Sell Tickers"].split(",").map((t) => t.trim()),
-  ].filter(Boolean);
+  const affectedAssets = signalTickers(signal);
+  // Quick signals come from the triage score alone, so the sections that only a full
+  // analysis fills in (price data, confidence, strategy, ripple effects) are left out
+  // rather than shown with placeholder text.
+  const quick = isQuickSignal(signal);
 
   async function share() {
     const url = window.location.href;
@@ -68,18 +75,45 @@ export default function SignalDetailContent({ id }: { id: string }) {
       />
 
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 py-4 lg:max-w-3xl">
-        <span
-          className={`inline-flex w-fit items-center gap-1 rounded-md border px-2 py-1 text-xs font-bold ${style.border} ${style.bg} ${style.text}`}
-        >
-          <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />
-          {style.label}
-        </span>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span
+            className={`inline-flex w-fit items-center gap-1 rounded-md border px-2 py-1 text-xs font-bold ${style.border} ${style.bg} ${style.text}`}
+          >
+            <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />
+            {style.label}
+          </span>
+          {signal.Impact != null && (
+            <span className={`${DETAIL_CHIP} ${impactStyle(signal.Impact)}`}>
+              Impact {signal.Impact}/10
+            </span>
+          )}
+          {signal.Region && (
+            <span className={`${DETAIL_CHIP} border-border text-muted`}>{signal.Region}</span>
+          )}
+          {signal.Analysis && (
+            <span
+              className={`${DETAIL_CHIP} border-border text-muted ${quick ? "border-dashed" : ""}`}
+            >
+              {quick ? "Quick signal" : "Deep analysis"}
+            </span>
+          )}
+        </div>
 
         <h1 className="text-xl font-bold text-foreground">{signal.Headline}</h1>
 
-        <p className="rounded-lg border border-border bg-surface-2 px-3 py-2 font-mono text-xs text-accent">
-          {signal["Grounded Data"]}
-        </p>
+        {signal.Summary && <p className="text-sm text-foreground/90">{signal.Summary}</p>}
+
+        {quick ? (
+          <p className="rounded-lg border border-dashed border-border bg-surface-2 px-3 py-2 text-xs text-muted">
+            Quick signal: the AI scored this headline&apos;s market impact and likely direction,
+            but it did not get a full analysis. There is no strategy, price data or ripple
+            effects for it — open the article below for the details.
+          </p>
+        ) : (
+          <p className="rounded-lg border border-border bg-surface-2 px-3 py-2 font-mono text-xs text-accent">
+            {signal["Grounded Data"]}
+          </p>
+        )}
 
         {signal["Key Takeaways"]?.length > 0 && (
           <div>
@@ -99,7 +133,9 @@ export default function SignalDetailContent({ id }: { id: string }) {
           <div>
             <h2 className="mb-2 text-sm font-semibold text-foreground">
               Affected Assets{" "}
-              <span className="font-normal text-muted">(Buy / Hedge)</span>
+              <span className="font-normal text-muted">
+                {quick ? "(AI-suggested)" : "(Buy / Hedge)"}
+              </span>
             </h2>
             <div className="flex flex-wrap gap-1.5">
               {affectedAssets.map((t) => (
@@ -109,39 +145,44 @@ export default function SignalDetailContent({ id }: { id: string }) {
           </div>
         )}
 
-        <div>
-          <div className="mb-1.5 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-foreground">Confidence</h2>
-            <span className="text-sm font-bold text-foreground">{confidence}%</span>
-          </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-surface-2">
-            <div
-              className="h-full rounded-full bg-accent"
-              style={{ width: `${confidence}%` }}
-            />
-          </div>
-          <p className="mt-1 text-[11px] text-muted">
-            Derived from sentiment strength ({signal.Sentiment.replaceAll("_", " ")}), not a
-            model-reported score.
-          </p>
-        </div>
+        {!quick && (
+          <>
+            <div>
+              <div className="mb-1.5 flex items-center justify-between">
+                <h2 className="text-sm font-semibold text-foreground">Confidence</h2>
+                <span className="text-sm font-bold text-foreground">{confidence}%</span>
+              </div>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-surface-2">
+                <div
+                  className="h-full rounded-full bg-accent"
+                  style={{ width: `${confidence}%` }}
+                />
+              </div>
+              <p className="mt-1 text-[11px] text-muted">
+                Derived from sentiment strength ({signal.Sentiment.replaceAll("_", " ")}), not a
+                model-reported score.
+              </p>
+            </div>
 
-        <div>
-          <h2 className="mb-2 text-sm font-semibold text-foreground">Execution Strategy</h2>
-          <p className="rounded-lg border border-border bg-surface p-3 text-sm text-foreground/90">
-            {signal["Execution Blueprint"]}
-          </p>
-        </div>
+            <div>
+              <h2 className="mb-2 text-sm font-semibold text-foreground">Execution Strategy</h2>
+              <p className="rounded-lg border border-border bg-surface p-3 text-sm text-foreground/90">
+                {signal["Execution Blueprint"]}
+              </p>
+            </div>
 
-        {signal["Ripple Effects (AI-inferred, unverified)"] && (
-          <div>
-            <h2 className="mb-1 text-sm font-semibold text-foreground">
-              Ripple Effects <span className="font-normal text-muted">(AI-inferred, unverified)</span>
-            </h2>
-            <p className="text-sm text-muted">
-              {signal["Ripple Effects (AI-inferred, unverified)"]}
-            </p>
-          </div>
+            {signal["Ripple Effects (AI-inferred, unverified)"] && (
+              <div>
+                <h2 className="mb-1 text-sm font-semibold text-foreground">
+                  Ripple Effects{" "}
+                  <span className="font-normal text-muted">(AI-inferred, unverified)</span>
+                </h2>
+                <p className="text-sm text-muted">
+                  {signal["Ripple Effects (AI-inferred, unverified)"]}
+                </p>
+              </div>
+            )}
+          </>
         )}
 
         <a

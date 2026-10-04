@@ -13,7 +13,7 @@ import type {
   SectorsResponse,
   WatchlistResponse,
 } from "@/lib/types";
-import { sentimentStyle, signalId, formatSignalTime } from "@/lib/signal-style";
+import { sentimentStyle, signalId, formatSignalTime, isQuickSignal } from "@/lib/signal-style";
 import { aggregateSentiment } from "@/lib/sentiment-aggregate";
 import { useStarred } from "@/lib/useStarred";
 import { TickerChip } from "@/components/ui/Badge";
@@ -335,7 +335,9 @@ export default function HomeContent({
 }) {
   const { signals } = useSignals();
 
-  const topSignal = signals[0];
+  // The hero card shows strategy and buy/hedge assets, which only a fully analyzed
+  // signal has — most new signals are quick ones, so pick the latest deep one.
+  const topSignal = signals.find((s) => !isQuickSignal(s)) ?? signals[0];
   const recentSignals = signals.slice(0, 4);
 
   return (

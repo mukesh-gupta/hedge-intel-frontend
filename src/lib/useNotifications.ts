@@ -6,11 +6,16 @@ import { signalId } from "./signal-style";
 import type { Signal } from "./types";
 
 const STORAGE_KEY = "hedge-intel:last-seen-signal-id";
+// The backend now emits several hundred signals a day, most of them minor; counting
+// every one would pin the badge at "9+". Signals from before impact scoring existed
+// have no Impact and still count.
+const NOTIFY_MIN_IMPACT = 7;
 
 /**
  * Real notifications, not a decorative badge: reads the same shared
  * /api/signals data every other screen uses (via SignalsProvider) and
- * treats anything newer than the last id the user acknowledged as "unread".
+ * treats anything newer than the last id the user acknowledged as "unread",
+ * if its impact score is at least NOTIFY_MIN_IMPACT.
  * trade_history is inserted newest-first by the backend, so "newer" just
  * means "appears before the last-seen id".
  */
@@ -33,7 +38,7 @@ export function useNotifications() {
     if (lastSeenId === null) return []; // first-ever visit: nothing "unread" yet
     const idx = signals.findIndex((s) => signalId(s) === lastSeenId);
     if (idx === -1) return []; // marker rolled off history — treat as caught up
-    return signals.slice(0, idx);
+    return signals.slice(0, idx).filter((s) => (s.Impact ?? 10) >= NOTIFY_MIN_IMPACT);
   }, [signals, lastSeenId]);
 
   // First-ever visit: silently mark the current newest as the baseline so we

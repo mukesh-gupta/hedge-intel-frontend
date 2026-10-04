@@ -48,6 +48,33 @@ export function sentimentStyle(sentiment: string): SentimentStyle {
   };
 }
 
+/** A quick signal carries only the triage result (direction, tickers, impact) — no
+ * strategy, summary or price data. Signals from before the triage pipeline have no
+ * Analysis field and were all fully analyzed, so they count as deep. */
+export function isQuickSignal(signal: Signal): boolean {
+  return signal.Analysis === "Quick";
+}
+
+/** Impact badge colors. Deliberately the accent hue, not green/red: those already
+ * mean bullish/bearish, and impact says how big the news is, not which way. */
+export function impactStyle(impact: number): string {
+  if (impact >= 8) return "border-accent bg-accent text-background";
+  if (impact >= 7) return "border-accent/50 bg-accent/10 text-accent";
+  return "border-border bg-surface-2 text-muted";
+}
+
+/** Every ticker a signal names, buy side first. Quick signals with a mixed direction
+ * have neither buy nor sell tickers, only the plain Tickers list. */
+export function signalTickers(signal: Signal): string[] {
+  const split = (value?: string) =>
+    (value ?? "")
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+  const directional = [...split(signal["Buy Tickers"]), ...split(signal["Sell Tickers"])];
+  return directional.length > 0 ? directional : split(signal.Tickers);
+}
+
 /** Mirrors backend/pipeline.py's CATEGORY_STYLE table. */
 export const CATEGORY_STYLE: Record<string, { icon: string; className: string }> = {
   Signal: { icon: "✨", className: "text-violet-400 border-violet-400/40 bg-violet-400/10" },
