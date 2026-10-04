@@ -1,4 +1,4 @@
-/** @import { ScorecardResponse, ScorecardHorizon, OutcomeResult } from "./types" */
+/** @import { ScorecardResponse, ScorecardHorizon, OutcomeResult, SpeedResponse } from "./types" */
 
 /** @type {ScorecardHorizon} */
 const EMPTY_HORIZON = {
@@ -62,4 +62,34 @@ export function accuracyTone(accuracy) {
   if (accuracy >= 55) return "text-bullish";
   if (accuracy <= 45) return "text-bearish";
   return "text-neutral";
+}
+
+/**
+ * What the speed panel shows before any signal has been timed.
+ *
+ * @returns {SpeedResponse}
+ */
+export function emptySpeed() {
+  const none = { count: 0, median: null, p90: null };
+  return {
+    signals: 0,
+    backfill_excluded: 0,
+    overall: { publish_to_seen: none, seen_to_signal: none, publish_to_signal: none },
+    by_feed: [],
+    by_analysis: [],
+    by_lane: [],
+  };
+}
+
+/**
+ * "45s", "3m 20s", "1h 5m".
+ *
+ * @param {number | null} seconds
+ */
+export function formatDuration(seconds) {
+  if (seconds === null) return "—";
+  if (seconds < 60) return `${seconds}s`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return seconds % 60 ? `${minutes}m ${seconds % 60}s` : `${minutes}m`;
+  return minutes % 60 ? `${Math.floor(minutes / 60)}h ${minutes % 60}m` : `${Math.floor(minutes / 60)}h`;
 }

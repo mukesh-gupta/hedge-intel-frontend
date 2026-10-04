@@ -216,3 +216,28 @@ export function hasTickerData(entry) {
  *   recent: ScoredResult[],
  * }} ScorecardResponse
  */
+
+/** Delays in whole seconds; median and p90 are null when count is 0.
+ *
+ * @typedef {{ count: number, median: number | null, p90: number | null }} DelaySummary
+ */
+
+/**
+ * GET /api/speed: how long today's signals took, split in two. publish_to_seen is how long
+ * after publishing a headline showed up in a feed (the source's delay); seen_to_signal is
+ * the backend's own time from there to a signal. Signals that were already in a feed when
+ * the backend restarted are left out of publish_to_seen and counted in backfill_excluded.
+ *
+ * @typedef {{
+ *   signals: number,
+ *   backfill_excluded: number,
+ *   overall: {
+ *     publish_to_seen: DelaySummary,
+ *     seen_to_signal: DelaySummary,
+ *     publish_to_signal: DelaySummary,
+ *   },
+ *   by_feed: { feed: string, publish_to_seen: DelaySummary, seen_to_signal: DelaySummary }[],
+ *   by_analysis: { analysis: string, seen_to_signal: DelaySummary }[],
+ *   by_lane: { lane: string, seen_to_signal: DelaySummary }[],
+ * }} SpeedResponse
+ */

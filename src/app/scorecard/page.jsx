@@ -1,23 +1,39 @@
 import { backendFetch } from "@/lib/backend";
-import { emptyScorecard } from "@/lib/scorecard";
+import { emptyScorecard, emptySpeed } from "@/lib/scorecard";
 import ScreenHeader from "@/components/ScreenHeader";
 import ScorecardContent from "@/components/scorecard/ScorecardContent";
+import SpeedPanel from "@/components/scorecard/SpeedPanel";
 
-/** @import { ScorecardResponse } from "@/lib/types" */
+/** @import { ScorecardResponse, SpeedResponse } from "@/lib/types" */
+
+/**
+ * The fallback is what the page shows if the backend can't be reached; the client's own
+ * polling then retries.
+ *
+ * @template T
+ * @param {string} path
+ * @param {T} fallback
+ * @returns {Promise<T>}
+ */
+async function fetchOr(path, fallback) {
+  try {
+    return await backendFetch(path, { revalidateSeconds: 60 });
+  } catch {
+    return fallback;
+  }
+}
 
 export default async function ScorecardPage() {
-  /** @type {ScorecardResponse} */
-  let scorecard = emptyScorecard(7);
-  try {
-    scorecard = await backendFetch("/api/scorecard?days=7", { revalidateSeconds: 60 });
-  } catch {
-    // Backend unreachable: render the empty scorecard and let the client poll retry.
-  }
+  const [scorecard, speed] = await Promise.all([
+    fetchOr("/api/scorecard?days=7", /** @type {ScorecardResponse} */ (emptyScorecard(7))),
+    fetchOr("/api/speed", /** @type {SpeedResponse} */ (emptySpeed())),
+  ]);
 
   return (
     <>
       <ScreenHeader title="Scorecard" eyebrow="Did the signals come true?" back="/more" />
       <ScorecardContent initialData={scorecard} />
+      <SpeedPanel initialData={speed} />
     </>
   );
 }
