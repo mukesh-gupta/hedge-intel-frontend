@@ -9,14 +9,15 @@ export default function HistoricalLogs() {
   const { signals } = useSignals();
 
   if (signals.length === 0) {
-    return <p className="px-4 py-8 text-center text-sm text-muted">No signal history yet.</p>;
+    return <p className="px-4 py-8 text-center text-sm text-muted">No signals yet today.</p>;
   }
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-4 lg:max-w-3xl">
       <p className="mb-3 text-[11px] text-muted">
-        Shows each signal&apos;s real article publish time, in your local timezone. History is
-        retained up to a fixed number of most-recent signals, not an unlimited archive.
+        Shows each signal&apos;s real article publish time, in your local timezone. Only
+        today&apos;s signals are kept: the list is cleared at midnight India time and starts
+        again.
       </p>
       <div className="relative flex flex-col gap-4 border-l border-border pl-4">
         {signals.map((s, i) => {
