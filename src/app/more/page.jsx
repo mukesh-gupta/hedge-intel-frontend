@@ -3,6 +3,7 @@ import {
   MessageCircle,
   PieChart,
   ClipboardList,
+  Target,
   Settings as SettingsIcon,
   ChevronRight,
 } from "lucide-react";
@@ -12,6 +13,7 @@ import ScanButton from "@/components/ScanButton";
 const LINKS = [
   { href: "/chat", label: "AI Intelligence Feed", icon: MessageCircle },
   { href: "/markets?tab=Sectors", label: "Sector Analysis", icon: PieChart },
+  { href: "/scorecard", label: "Scorecard", icon: Target },
   { href: "/logs", label: "Historical Logs", icon: ClipboardList },
   { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];

@@ -51,6 +51,32 @@ export function hasTickerData(entry) {
  */
 
 /**
+ * One price check on a signal's call. "right" / "wrong": the ticker moved with / against
+ * the call by at least the scorecard's minimum move. "flat": it moved less than that.
+ * "closed": the market did not trade in that time, so the call was not scored.
+ *
+ * @typedef {{
+ *   outcome: "right" | "wrong" | "flat" | "closed",
+ *   change_percent?: number,
+ *   price?: number,
+ *   checked_at: number,
+ * }} OutcomeResult
+ */
+
+/**
+ * Result tracking for one signal: the ticker and direction being checked, the price when
+ * the signal was published, and each check once it has happened (null until then).
+ *
+ * @typedef {{
+ *   ticker: string,
+ *   direction: "UP" | "DOWN",
+ *   entry_price: number,
+ *   "1h": OutcomeResult | null,
+ *   "1d": OutcomeResult | null,
+ * }} SignalOutcome
+ */
+
+/**
  * One signal from GET /api/signals.
  *
  * Impact, Analysis, Region, Tickers and Summary come from the backend's triage pipeline;
@@ -63,6 +89,8 @@ export function hasTickerData(entry) {
  * - Summary: deep signals only — one-sentence plain-language explanation.
  * - Timestamp: when the article was published (UTC ISO 8601).
  * - "Processed At": when the backend generated the signal (UTC ISO 8601).
+ * - Outcome: result tracking; null when the signal makes no call that can be checked
+ *   (neutral, or no ticker), absent on signals from before tracking existed.
  *
  * @typedef {{
  *   Timestamp: string,
@@ -84,6 +112,7 @@ export function hasTickerData(entry) {
  *   Tickers?: string,
  *   Summary?: string | null,
  *   "Processed At"?: string,
+ *   Outcome?: SignalOutcome | null,
  * }} Signal
  */
 
@@ -132,3 +161,58 @@ export function hasTickerData(entry) {
 /** @typedef {{ watchlist: WatchlistEntry[] }} WatchlistResponse */
 
 /** @typedef {{ active: boolean, refresh_interval_seconds: number }} SettingsResponse */
+
+/**
+ * accuracy = right / (right + wrong) as a percentage; null when nothing has been decided.
+ *
+ * @typedef {{
+ *   right: number,
+ *   wrong: number,
+ *   flat: number,
+ *   closed: number,
+ *   accuracy: number | null,
+ * }} ScorecardTally
+ */
+
+/** @typedef {ScorecardTally & { value: string }} ScorecardRow */
+
+/**
+ * @typedef {{
+ *   overall: ScorecardTally,
+ *   by_impact: ScorecardRow[],
+ *   by_analysis: ScorecardRow[],
+ *   by_region: ScorecardRow[],
+ *   by_direction: ScorecardRow[],
+ *   by_source: ScorecardRow[],
+ * }} ScorecardHorizon
+ */
+
+/**
+ * @typedef {OutcomeResult & {
+ *   id: string,
+ *   headline: string,
+ *   ticker: string,
+ *   direction: "UP" | "DOWN",
+ *   entry_price: number,
+ *   impact: number | null,
+ *   analysis: string,
+ *   region: string | null,
+ *   source: string | null,
+ *   day: string,
+ *   horizon: "1h" | "1d",
+ * }} ScoredResult
+ */
+
+/**
+ * GET /api/scorecard: how often signals' calls came true. `since` is the first day with
+ * data in the window; `pending` is how many signals still have a check to come.
+ *
+ * @typedef {{
+ *   days: number,
+ *   since: string | null,
+ *   min_move_percent: number,
+ *   pending: number,
+ *   horizons: { "1h": ScorecardHorizon, "1d": ScorecardHorizon },
+ *   recent: ScoredResult[],
+ * }} ScorecardResponse
+ */

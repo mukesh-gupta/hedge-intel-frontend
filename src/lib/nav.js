@@ -8,6 +8,7 @@ import {
   ClipboardList,
   Settings,
   Menu,
+  Target,
 } from "lucide-react";
 
 /** @import { LucideIcon } from "lucide-react" */
@@ -38,6 +39,7 @@ export const SIDEBAR_ITEMS = [
   { href: "/markets?tab=Sectors", label: "Sector Analysis", icon: PieChart, matchHref: "/markets" },
   { href: "/watchlist", label: "Watchlist", icon: Star },
   { href: "/chat", label: "AI Intelligence", icon: MessageCircle },
+  { href: "/scorecard", label: "Scorecard", icon: Target },
   { href: "/logs", label: "Historical Logs", icon: ClipboardList },
   { href: "/settings", label: "Settings", icon: Settings },
 ];

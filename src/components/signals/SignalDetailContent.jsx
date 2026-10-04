@@ -13,6 +13,7 @@ import {
 import { useStarred } from "@/lib/useStarred";
 import { TickerChip } from "@/components/ui/Badge";
 import LocalTime from "@/components/ui/LocalTime";
+import { OutcomeDetail } from "./OutcomeChips";
 import ScreenHeader from "@/components/ScreenHeader";
 
 // Same size as the sentiment chip beside it (one step larger than the feed's badges).
@@ -150,6 +151,8 @@ export default function SignalDetailContent({ id }) {
             </div>
           </div>
         )}
+
+        {signal.Outcome && <OutcomeDetail outcome={signal.Outcome} />}
 
         {!quick && (
           <>

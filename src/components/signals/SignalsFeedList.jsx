@@ -23,6 +23,7 @@ import {
 } from "@/lib/useSignalFilters";
 import Badge, { TickerChip } from "@/components/ui/Badge";
 import LocalTime from "@/components/ui/LocalTime";
+import OutcomeChips from "./OutcomeChips";
 
 /** @import { ReactNode } from "react" */
 
@@ -203,6 +204,7 @@ export default function SignalsFeedList({ initialQuery = "" }) {
                 {isQuickSignal(s) && (
                   <Badge className="border-dashed border-border text-muted">Quick</Badge>
                 )}
+                <OutcomeChips outcome={s.Outcome} />
               </div>
 
               <Link href={`/signals/${id}`}>
