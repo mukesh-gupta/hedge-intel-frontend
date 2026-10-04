@@ -7,6 +7,7 @@ import { usePolling } from "@/lib/usePolling";
 import { hasTickerData, type TickerBarResponse } from "@/lib/types";
 import LiveClock from "@/components/ui/LiveClock";
 import NotificationBell from "@/components/NotificationBell";
+import { formatNumber } from "@/lib/format";
 
 function isNegative(changePercent: string) {
   return changePercent.trim().startsWith("-");
@@ -50,7 +51,7 @@ export default function DesktopHeader({ initialTicker }: { initialTicker: Ticker
               <div key={row.symbol} className="flex shrink-0 items-baseline gap-1.5 text-xs">
                 <span className="font-semibold text-muted">{row.label}</span>
                 <span className="font-mono text-foreground">
-                  {row.data.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                  {formatNumber(row.data.price)}
                 </span>
                 <span
                   className={`flex items-center gap-0.5 font-semibold ${

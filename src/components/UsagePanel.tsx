@@ -2,6 +2,7 @@
 
 import { usePolling } from "@/lib/usePolling";
 import type { UsageResponse } from "@/lib/types";
+import { formatNumber } from "@/lib/format";
 
 function Stat({ label, value }: { label: string; value: string | number }) {
   return (
@@ -21,9 +22,9 @@ export default function UsagePanel({ initialData }: { initialData: UsageResponse
     <div className="rounded-lg border border-border bg-surface p-4">
       <h2 className="mb-3 text-sm font-semibold text-muted">Usage & Health</h2>
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-        <Stat label="Groq tokens" value={data.groq_tokens_today.toLocaleString()} />
-        <Stat label="OpenRouter tokens" value={data.openrouter_tokens_today.toLocaleString()} />
-        <Stat label="Gemini tokens" value={data.gemini_tokens_today.toLocaleString()} />
+        <Stat label="Groq tokens" value={formatNumber(data.groq_tokens_today)} />
+        <Stat label="OpenRouter tokens" value={formatNumber(data.openrouter_tokens_today)} />
+        <Stat label="Gemini tokens" value={formatNumber(data.gemini_tokens_today)} />
         <Stat label="Alpha Vantage calls" value={data.av_calls_today} />
         <Stat label="Headlines queued" value={data.headlines_queued} />
         <Stat label="AI cooldown (s)" value={data.ai_cooldown_remaining} />

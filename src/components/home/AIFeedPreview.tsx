@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Signal } from "@/lib/types";
-import { categoryStyle, signalId, formatSignalTime } from "@/lib/signal-style";
+import { categoryStyle, signalId } from "@/lib/signal-style";
+import LocalTime from "@/components/ui/LocalTime";
 
 export default function AIFeedPreview({ signals }: { signals: Signal[] }) {
   const items = signals.slice(0, 4);
@@ -33,7 +34,7 @@ export default function AIFeedPreview({ signals }: { signals: Signal[] }) {
                 <div className="min-w-0">
                   <p className="truncate text-sm text-foreground">{s.Headline}</p>
                   <p className="text-[11px] text-muted">
-                    {formatSignalTime(s.Timestamp)} · {s.Category || "Signal"}
+                    <LocalTime timestamp={s.Timestamp} /> · {s.Category || "Signal"}
                   </p>
                 </div>
               </Link>

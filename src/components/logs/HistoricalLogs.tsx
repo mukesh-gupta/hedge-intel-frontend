@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useSignals } from "@/lib/SignalsProvider";
-import { sentimentStyle, signalId, formatSignalDateTime } from "@/lib/signal-style";
+import { sentimentStyle, signalId } from "@/lib/signal-style";
+import LocalTime from "@/components/ui/LocalTime";
 
 export default function HistoricalLogs() {
   const { signals } = useSignals();
@@ -29,7 +30,9 @@ export default function HistoricalLogs() {
               <span
                 className={`absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full ${style.dot}`}
               />
-              <p className="text-xs text-muted">{formatSignalDateTime(s.Timestamp)}</p>
+              <p className="text-xs text-muted">
+                <LocalTime timestamp={s.Timestamp} withDate />
+              </p>
               <p className="mt-0.5 text-sm font-semibold text-foreground">{s.Headline}</p>
               <span
                 className={`mt-1 inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-bold ${style.border} ${style.bg} ${style.text}`}

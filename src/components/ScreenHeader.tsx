@@ -12,7 +12,7 @@ export default function ScreenHeader({
   right,
 }: {
   title: string;
-  eyebrow?: string;
+  eyebrow?: ReactNode;
   back?: string;
   right?: ReactNode;
 }) {

@@ -6,6 +6,7 @@ import { usePolling } from "@/lib/usePolling";
 import { useWatchlistStream } from "@/lib/useWatchlistStream";
 import { toFinnhubSymbol, liveChangePercent } from "@/lib/finnhub-symbol";
 import type { WatchlistResponse } from "@/lib/types";
+import { formatNumber } from "@/lib/format";
 
 function parseChange(changePercent: string): number {
   return parseFloat(changePercent.replace("%", "")) || 0;
@@ -60,7 +61,7 @@ export default function TopMovers({ initialData }: { initialData: WatchlistRespo
                 </span>
                 <div className="flex items-center gap-3">
                   <span className="font-mono text-muted">
-                    {t.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                    {formatNumber(t.price)}
                   </span>
                   <span
                     className={`flex items-center gap-1 text-xs font-semibold ${

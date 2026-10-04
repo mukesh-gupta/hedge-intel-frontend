@@ -4,7 +4,8 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { useSignals } from "@/lib/SignalsProvider";
-import { categoryStyle, signalId, formatSignalTime } from "@/lib/signal-style";
+import { categoryStyle, signalId } from "@/lib/signal-style";
+import LocalTime from "@/components/ui/LocalTime";
 
 export default function ChatFeedContent() {
   const { signals } = useSignals();
@@ -56,7 +57,9 @@ export default function ChatFeedContent() {
                 {style.icon}
               </span>
               <div className="flex-1">
-                <p className="text-xs text-muted">{formatSignalTime(s.Timestamp)}</p>
+                <p className="text-xs text-muted">
+                  <LocalTime timestamp={s.Timestamp} />
+                </p>
                 <p className="mt-0.5 text-sm font-semibold text-foreground">{s.Headline}</p>
                 <p className="mt-1 line-clamp-2 text-xs text-muted">
                   {s["Execution Blueprint"]}

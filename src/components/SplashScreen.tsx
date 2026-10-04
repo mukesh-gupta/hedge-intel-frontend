@@ -12,7 +12,6 @@ export default function SplashScreen() {
   useEffect(() => {
     try {
       if (sessionStorage.getItem(SESSION_KEY)) return;
-      sessionStorage.setItem(SESSION_KEY, "1");
     } catch {
       // ignore
     }
@@ -20,7 +19,18 @@ export default function SplashScreen() {
     // initializer without risking an SSR/client hydration mismatch.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setVisible(true);
-    const t = setTimeout(() => setVisible(false), DURATION_MS);
+    const t = setTimeout(() => {
+      setVisible(false);
+      // Marked as shown only once it has finished. In development React runs this
+      // effect twice (StrictMode); marking it up front made the second run return
+      // early after the first run's timer was already cancelled, so the splash
+      // never went away.
+      try {
+        sessionStorage.setItem(SESSION_KEY, "1");
+      } catch {
+        // ignore
+      }
+    }, DURATION_MS);
     return () => clearTimeout(t);
   }, []);
 

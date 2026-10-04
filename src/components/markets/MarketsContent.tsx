@@ -6,6 +6,7 @@ import { usePolling } from "@/lib/usePolling";
 import { hasTickerData, type TickerBarResponse, type MarketDataResponse, type SectorsResponse } from "@/lib/types";
 import { MARKET_TABS, MARKET_DATA_CATEGORY, type MarketCategory } from "@/lib/market-categories";
 import Sparkline from "@/components/ui/Sparkline";
+import { formatNumber } from "@/lib/format";
 
 function isNegative(changePercent: string | number) {
   return String(changePercent).trim().startsWith("-");
@@ -56,7 +57,7 @@ function CategoryPanel({
             {row.history && <Sparkline data={row.history} positive={!negative} />}
             <div className="text-right">
               <p className="font-mono text-sm font-semibold text-foreground">
-                {row.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                {formatNumber(row.price)}
               </p>
               <p
                 className={`flex items-center justify-end gap-1 text-xs font-semibold ${
@@ -101,7 +102,7 @@ function CryptoPanel({ initialTicker }: { initialTicker: TickerBarResponse }) {
             </div>
             <div className="text-right">
               <p className="font-mono text-sm font-semibold text-foreground">
-                {row.data.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                {formatNumber(row.data.price)}
               </p>
               <p
                 className={`flex items-center justify-end gap-1 text-xs font-semibold ${

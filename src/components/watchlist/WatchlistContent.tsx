@@ -6,6 +6,7 @@ import { usePolling } from "@/lib/usePolling";
 import { useWatchlistStream } from "@/lib/useWatchlistStream";
 import { toFinnhubSymbol, liveChangePercent } from "@/lib/finnhub-symbol";
 import type { WatchlistResponse } from "@/lib/types";
+import { formatNumber } from "@/lib/format";
 
 function isNegative(changePercent: string) {
   return changePercent.trim().startsWith("-");
@@ -116,7 +117,7 @@ export default function WatchlistContent({ initialData }: { initialData: Watchli
                 <div className="flex items-center gap-3">
                   <div className="text-right">
                     <p className="font-mono text-sm font-semibold text-foreground">
-                      {price.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                      {formatNumber(price)}
                     </p>
                     <p
                       className={`flex items-center justify-end gap-1 text-xs font-semibold ${

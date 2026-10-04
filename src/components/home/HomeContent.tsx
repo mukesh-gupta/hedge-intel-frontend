@@ -13,14 +13,16 @@ import type {
   SectorsResponse,
   WatchlistResponse,
 } from "@/lib/types";
-import { sentimentStyle, signalId, formatSignalTime, isQuickSignal } from "@/lib/signal-style";
+import { sentimentStyle, signalId, isQuickSignal } from "@/lib/signal-style";
 import { aggregateSentiment } from "@/lib/sentiment-aggregate";
 import { useStarred } from "@/lib/useStarred";
 import { TickerChip } from "@/components/ui/Badge";
 import Sparkline from "@/components/ui/Sparkline";
 import LiveClock from "@/components/ui/LiveClock";
+import LocalTime from "@/components/ui/LocalTime";
 import TopMovers from "./TopMovers";
 import AIFeedPreview from "./AIFeedPreview";
+import { formatNumber } from "@/lib/format";
 
 function isNegative(changePercent: string) {
   return changePercent.trim().startsWith("-");
@@ -64,7 +66,7 @@ function IndexRow({
           >
             <span className="text-xs font-semibold text-muted">{row.label}</span>
             <span className="font-mono text-sm font-semibold text-foreground">
-              {row.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+              {formatNumber(row.price)}
             </span>
             <div className="flex items-center justify-between gap-1">
               <span
@@ -108,7 +110,7 @@ function LatestSignalCard({ signal }: { signal: Signal }) {
         >
           <Star size={12} /> {style.label}
         </span>
-        <span className="text-xs text-muted">{formatSignalTime(signal.Timestamp)}</span>
+        <LocalTime timestamp={signal.Timestamp} className="text-xs text-muted" />
       </div>
 
       <h2 className="mt-2 text-base font-semibold text-foreground">{signal.Headline}</h2>
@@ -309,7 +311,7 @@ function RecentSignalsCard({ signals }: { signals: Signal[] }) {
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-foreground">{s.Headline}</p>
                 <p className="text-[11px] text-muted">
-                  {formatSignalTime(s.Timestamp)} · {s.Sector}
+                  <LocalTime timestamp={s.Timestamp} /> · {s.Sector}
                 </p>
               </div>
             </Link>

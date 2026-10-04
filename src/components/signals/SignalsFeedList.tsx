@@ -7,7 +7,6 @@ import { useSignals } from "@/lib/SignalsProvider";
 import {
   sentimentStyle,
   signalId,
-  formatSignalTime,
   impactStyle,
   isQuickSignal,
   signalTickers,
@@ -23,6 +22,7 @@ import {
   REGION_ORDER,
 } from "@/lib/useSignalFilters";
 import Badge, { TickerChip } from "@/components/ui/Badge";
+import LocalTime from "@/components/ui/LocalTime";
 
 // The feed holds up to 2,000 signals; rendering every card at once makes the page
 // sluggish, so it grows a page at a time.
@@ -181,7 +181,7 @@ export default function SignalsFeedList({ initialQuery = "" }: { initialQuery?: 
               className="rounded-xl border border-border bg-surface p-3.5"
             >
               <div className="flex items-start justify-between gap-2">
-                <span className="text-xs text-muted">{formatSignalTime(s.Timestamp)}</span>
+                <LocalTime timestamp={s.Timestamp} className="text-xs text-muted" />
                 <button
                   onClick={() => toggle(id)}
                   aria-label="Star signal"

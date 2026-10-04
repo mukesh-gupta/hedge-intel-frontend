@@ -110,7 +110,11 @@ export function findSignalById(signals: Signal[], id: string): Signal | undefine
  * rather than baked into a fixed server-side format. Falls back to the raw
  * string for older signals still in history from before this format
  * changed (those used a plain "07:34:00 AM"-style string, not parseable as
- * a real date). */
+ * a real date).
+ *
+ * Render these through <LocalTime>, not directly: the output depends on the
+ * browser's locale and timezone, so calling them during server rendering
+ * produces different text and a hydration error. */
 export function formatSignalTime(timestamp: string): string {
   const date = new Date(timestamp);
   if (Number.isNaN(date.getTime())) return timestamp;

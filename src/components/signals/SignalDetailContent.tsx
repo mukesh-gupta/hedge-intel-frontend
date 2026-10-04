@@ -6,13 +6,13 @@ import {
   sentimentStyle,
   sentimentConfidence,
   findSignalById,
-  formatSignalDateTime,
   impactStyle,
   isQuickSignal,
   signalTickers,
 } from "@/lib/signal-style";
 import { useStarred } from "@/lib/useStarred";
 import { TickerChip } from "@/components/ui/Badge";
+import LocalTime from "@/components/ui/LocalTime";
 import ScreenHeader from "@/components/ScreenHeader";
 
 // Same size as the sentiment chip beside it (one step larger than the feed's badges).
@@ -56,7 +56,11 @@ export default function SignalDetailContent({ id }: { id: string }) {
     <>
       <ScreenHeader
         title="Signal Details"
-        eyebrow={`${formatSignalDateTime(signal.Timestamp)} · ${signal.Sector}`}
+        eyebrow={
+          <>
+            <LocalTime timestamp={signal.Timestamp} withDate /> · {signal.Sector}
+          </>
+        }
         back="/signals"
         right={
           <div className="flex items-center gap-3">
