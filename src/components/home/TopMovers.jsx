@@ -1,0 +1,92 @@
+"use client";
+
+import Link from "next/link";
+import { TrendingUp, TrendingDown } from "lucide-react";
+import { usePolling } from "@/lib/usePolling";
+import { useWatchlistStream } from "@/lib/useWatchlistStream";
+import { toFinnhubSymbol, liveChangePercent } from "@/lib/finnhub-symbol";
+import { formatNumber } from "@/lib/format";
+
+/** @import { WatchlistResponse } from "@/lib/types" */
+
+/**
+ * @param {string} changePercent
+ * @returns {number}
+ */
+function parseChange(changePercent) {
+  return parseFloat(changePercent.replace("%", "")) || 0;
+}
+
+/** Real data from /api/watchlist — sorted by change% since the backend has no
+ * dedicated "top movers" endpoint. Limited to whatever symbols are on the
+ * shared watchlist, not the full market. Prices live-overlay from the same
+ *
+ * @param {{ initialData: WatchlistResponse }} props
+ * Finnhub SSE stream the Watchlist page uses. */
+export default function TopMovers({ initialData }) {
+  const { data } = usePolling("/api/watchlist", 20_000, initialData, {
+    fetchImmediately: initialData.watchlist.length === 0,
+  });
+  const live = useWatchlistStream();
+
+  const withLive = data.watchlist.map((t) => {
+    const finnhubSymbol = toFinnhubSymbol(t.symbol);
+    const tick = finnhubSymbol ? live[finnhubSymbol] : undefined;
+    return {
+      ...t,
+      price: tick?.price ?? t.price,
+      change_percent: tick
+        ? liveChangePercent(t.price, t.change_percent, tick.price)
+        : t.change_percent,
+      isLive: Boolean(tick),
+    };
+  });
+
+  const gainers = [...withLive]
+    .sort((a, b) => parseChange(b.change_percent) - parseChange(a.change_percent))
+    .slice(0, 5);
+
+  return (
+    <div className="rounded-xl border border-border bg-surface p-4">
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-sm font-semibold text-muted">Top Movers (Watchlist)</h2>
+        <Link href="/watchlist" className="text-xs text-accent">
+          View All
+        </Link>
+      </div>
+      {gainers.length === 0 ? (
+        <p className="text-sm text-muted">Your watchlist is empty.</p>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {gainers.map((t) => {
+            const negative = parseChange(t.change_percent) < 0;
+            return (
+              <div key={t.symbol} className="flex items-center justify-between text-sm">
+                <span className="flex items-center gap-1.5 font-medium text-foreground">
+                  {t.label}
+                  {t.isLive && (
+                    <span
+                      className="h-1.5 w-1.5 animate-pulse rounded-full bg-bullish"
+                      title="Live"
+                    />
+                  )}
+                </span>
+                <div className="flex items-center gap-3">
+                  <span className="font-mono text-muted">{formatNumber(t.price)}</span>
+                  <span
+                    className={`flex items-center gap-1 text-xs font-semibold ${
+                      negative ? "text-bearish" : "text-bullish"
+                    }`}
+                  >
+                    {negative ? <TrendingDown size={12} /> : <TrendingUp size={12} />}
+                    {t.change_percent}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
