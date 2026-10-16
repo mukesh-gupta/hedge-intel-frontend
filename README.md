@@ -29,6 +29,23 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
+## Keeping Vercel usage low
+
+The browser reads straight from the backend and Vercel runs no function per poll, provided
+two settings are in place:
+
+1. **Vercel → Project → Settings → Environment Variables**: add
+   `NEXT_PUBLIC_HEDGE_API_BASE_URL` = the backend's public URL (for Production and Preview),
+   then redeploy — the value is inlined at build time.
+2. **Render → the backend service → Environment**: add `CORS_ORIGINS` =
+   `https://hedge-intel-frontend.vercel.app` (comma-separate any other origins) and redeploy.
+
+Without the first setting, reads fall back to the `/api` proxy routes, which are now
+edge-cached (`src/lib/route-response.js`) and polled no faster than `src/lib/refresh.js`
+allows; the watchlist's live stream only runs in direct mode, because relaying it through
+a Vercel function kept one running around the clock. Writes (scan, watchlist edits,
+settings) always go through the proxy, which holds the admin token.
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.

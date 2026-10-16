@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { DIRECT_READS, readUrl } from "./api-base";
 
 /**
  * @typedef {Object} LiveTick
@@ -9,8 +10,13 @@ import { useEffect, useState } from "react";
  */
 
 /**
- * Connects to /api/watchlist/stream (proxying the backend's Finnhub-backed
- * SSE endpoint) and keeps a live map of Finnhub-symbol -> latest tick.
+ * Connects to the backend's Finnhub-backed SSE endpoint and keeps a live map
+ * of Finnhub-symbol -> latest tick.
+ *
+ * Only when reads go direct (NEXT_PUBLIC_HEDGE_API_BASE_URL is set). Relaying
+ * the stream through a Vercel function kept one running around the clock for
+ * every open tab, which on its own exceeded the Hobby plan's monthly function
+ * time; without a public backend URL the watchlist relies on its polling.
  *
  * Actively closes the connection while the tab is hidden/backgrounded and
  * reopens it on return — an open SSE connection is itself a standing HTTP
@@ -24,11 +30,13 @@ export function useWatchlistStream() {
   const [live, setLive] = useState(/** @type {Record<string, LiveTick>} */ ({}));
 
   useEffect(() => {
+    if (!DIRECT_READS) return undefined;
+
     /** @type {EventSource | null} */
     let source = null;
 
     function connect() {
-      source = new EventSource("/api/watchlist/stream");
+      source = new EventSource(readUrl("/api/watchlist/stream"));
       source.onmessage = (event) => {
         try {
           const update = JSON.parse(event.data);

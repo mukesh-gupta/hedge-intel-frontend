@@ -1,6 +1,7 @@
 "use client";
 
 import { usePolling } from "@/lib/usePolling";
+import { REFRESH_MS } from "@/lib/refresh";
 import { formatNumber } from "@/lib/format";
 
 /** @import { UsageResponse } from "@/lib/types" */
@@ -17,7 +18,7 @@ function Stat({ label, value }) {
 
 /** @param {{ initialData: UsageResponse }} props */
 export default function UsagePanel({ initialData }) {
-  const { data } = usePolling("/api/usage", 15_000, initialData, {
+  const { data } = usePolling("/api/usage", REFRESH_MS.usage, initialData, {
     fetchImmediately: false,
   });
 

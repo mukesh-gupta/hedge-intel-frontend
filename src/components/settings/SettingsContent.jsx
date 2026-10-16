@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { getLiveStreamEnabled, setLiveStreamEnabled } from "@/lib/liveStreamStore";
 import { getTheme, applyTheme } from "@/lib/themeStore";
 import { usePolling } from "@/lib/usePolling";
+import { REFRESH_MS } from "@/lib/refresh";
 import Switch from "@/components/ui/Switch";
 import StatusDots from "@/components/StatusDots";
 import UsagePanel from "@/components/UsagePanel";
@@ -22,7 +23,7 @@ export default function SettingsContent({ initialStatus, initialUsage, initialSe
   const [theme, setThemeState] = useState(/** @type {Theme} */ ("dark"));
   const { data: settings, refetch: refetchSettings } = usePolling(
     "/api/settings",
-    15_000,
+    REFRESH_MS.settings,
     initialSettings,
     { fetchImmediately: false }
   );

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { backendFetch, BackendError } from "@/lib/backend";
+import { cachedJson } from "@/lib/route-response";
 
 /** @import { NextRequest } from "next/server" */
 
@@ -9,9 +10,9 @@ export async function GET(req) {
 
   try {
     const data = await backendFetch(`/api/sectors?timeframe=${encodeURIComponent(timeframe)}`, {
-      revalidateSeconds: 30,
+      revalidateSeconds: 120,
     });
-    return NextResponse.json(data);
+    return cachedJson(data, 120);
   } catch (err) {
     const status = err instanceof BackendError ? err.status : 502;
     return NextResponse.json({ error: "Failed to reach backend" }, { status });

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { DIRECT_READS, readUrl } from "./api-base";
 import { getLiveStreamEnabled, subscribeLiveStream } from "./liveStreamStore";
 
 /**
@@ -13,9 +14,10 @@ import { getLiveStreamEnabled, subscribeLiveStream } from "./liveStreamStore";
  */
 
 /**
- * Polls a same-origin API route (our Next.js proxy, never the backend
- * directly) on an interval, starting from server-fetched initialData so the
- * first paint already has real data. Also exposes `refetch` for deliberate
+ * Polls an API path on an interval, starting from server-fetched initialData
+ * so the first paint already has real data. The path is resolved by readUrl:
+ * straight to the backend when NEXT_PUBLIC_HEDGE_API_BASE_URL is set, else the
+ * same-origin Next.js proxy route of the same name. Also exposes `refetch` for deliberate
  * user actions (e.g. right after a mutation) that shouldn't wait for the
  * next tick — and ignores the "live stream" pause toggle, since a manual
  * refresh is an explicit request, not scheduled polling.
@@ -47,7 +49,11 @@ export function usePolling(url, intervalMs, initialData, { fetchImmediately = tr
     inFlight.current = true;
     setState((s) => ({ ...s, loading: true }));
     try {
-      const res = await fetch(urlRef.current, { cache: "no-store" });
+      // Direct reads: nothing for the browser to cache. Proxied reads: let the
+      // edge cache answer (the route sets s-maxage) instead of a function per poll.
+      const res = await fetch(readUrl(urlRef.current), {
+        cache: DIRECT_READS ? "no-store" : "default",
+      });
       if (!res.ok) throw new Error(`Request failed: ${res.status}`);
       /** @type {T} */
       const data = await res.json();

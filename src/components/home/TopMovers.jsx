@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { usePolling } from "@/lib/usePolling";
+import { REFRESH_MS } from "@/lib/refresh";
 import { useWatchlistStream } from "@/lib/useWatchlistStream";
 import { toFinnhubSymbol, liveChangePercent } from "@/lib/finnhub-symbol";
 import { formatNumber } from "@/lib/format";
@@ -24,7 +25,7 @@ function parseChange(changePercent) {
  * @param {{ initialData: WatchlistResponse }} props
  * Finnhub SSE stream the Watchlist page uses. */
 export default function TopMovers({ initialData }) {
-  const { data } = usePolling("/api/watchlist", 20_000, initialData, {
+  const { data } = usePolling("/api/watchlist", REFRESH_MS.watchlist, initialData, {
     fetchImmediately: initialData.watchlist.length === 0,
   });
   const live = useWatchlistStream();

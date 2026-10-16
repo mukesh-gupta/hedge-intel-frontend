@@ -1,6 +1,7 @@
 "use client";
 
 import { usePolling } from "@/lib/usePolling";
+import { REFRESH_MS } from "@/lib/refresh";
 
 /** @import { StatusResponse } from "@/lib/types" */
 
@@ -14,7 +15,7 @@ const LABELS = {
 
 /** @param {{ initialData: StatusResponse }} props */
 export default function StatusDots({ initialData }) {
-  const { data, error } = usePolling("/api/status", 15_000, initialData, {
+  const { data, error } = usePolling("/api/status", REFRESH_MS.status, initialData, {
     fetchImmediately: false,
   });
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { usePolling } from "@/lib/usePolling";
+import { REFRESH_MS } from "@/lib/refresh";
 import { formatDuration } from "@/lib/scorecard";
 
 /** @import { SpeedResponse, DelaySummary } from "@/lib/types" */
@@ -40,7 +41,7 @@ function DelayTile({ label, hint, delay }) {
 
 /** @param {{ initialData: SpeedResponse }} props */
 export default function SpeedPanel({ initialData }) {
-  const { data } = usePolling("/api/speed", 60_000, initialData, { fetchImmediately: false });
+  const { data } = usePolling("/api/speed", REFRESH_MS.speed, initialData, { fetchImmediately: false });
   const { overall } = data;
 
   return (

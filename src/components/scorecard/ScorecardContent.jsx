@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { usePolling } from "@/lib/usePolling";
+import { REFRESH_MS } from "@/lib/refresh";
 import { emptyScorecard, outcomeStyle, formatChange, accuracyTone } from "@/lib/scorecard";
 
 /** @import { ScorecardResponse, ScorecardTally, ScorecardRow, ScoredResult } from "@/lib/types" */
@@ -166,7 +167,7 @@ function RecentResults({ results }) {
  * @param {boolean} props.fetchImmediately
  */
 function ScorecardPanel({ days, initialData, fetchImmediately }) {
-  const { data, error } = usePolling(`/api/scorecard?days=${days}`, 60_000, initialData, {
+  const { data, error } = usePolling(`/api/scorecard?days=${days}`, REFRESH_MS.scorecard, initialData, {
     fetchImmediately,
   });
   const [breakdownHorizon, setBreakdownHorizon] = useState(

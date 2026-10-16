@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Search, TrendingUp, TrendingDown } from "lucide-react";
 import { usePolling } from "@/lib/usePolling";
+import { REFRESH_MS } from "@/lib/refresh";
 import { hasTickerData } from "@/lib/types";
 import LiveClock from "@/components/ui/LiveClock";
 import NotificationBell from "@/components/NotificationBell";
@@ -20,7 +21,7 @@ function isNegative(changePercent) {
 export default function DesktopHeader({ initialTicker }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
-  const { data: ticker } = usePolling("/api/ticker-bar", 20_000, initialTicker, {
+  const { data: ticker } = usePolling("/api/ticker-bar", REFRESH_MS.ticker, initialTicker, {
     fetchImmediately: initialTicker.ticker_bar.length === 0,
   });
 

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { usePolling } from "@/lib/usePolling";
+import { REFRESH_MS } from "@/lib/refresh";
 import { hasTickerData } from "@/lib/types";
 import { MARKET_TABS, MARKET_DATA_CATEGORY, resolveMarketTab } from "@/lib/market-categories";
 import Sparkline from "@/components/ui/Sparkline";
@@ -27,7 +28,7 @@ function CategoryPanel({ category, initialData }) {
   const dataCategory = MARKET_DATA_CATEGORY[category];
   const { data, loading, error } = usePolling(
     `/api/market-data?category=${dataCategory}&history=true`,
-    20_000,
+    REFRESH_MS.markets,
     initialData,
     { fetchImmediately: initialData.assets.length === 0 }
   );
@@ -84,7 +85,7 @@ function CategoryPanel({ category, initialData }) {
 
 /** @param {{ initialTicker: TickerBarResponse }} props */
 function CryptoPanel({ initialTicker }) {
-  const { data } = usePolling("/api/ticker-bar", 20_000, initialTicker, {
+  const { data } = usePolling("/api/ticker-bar", REFRESH_MS.ticker, initialTicker, {
     fetchImmediately: initialTicker.ticker_bar.length === 0,
   });
   const rows = data.ticker_bar.filter((t) => t.symbol === "BTC-USD").filter(hasTickerData);
@@ -161,7 +162,7 @@ function SectorsPanel({ initialSectorsData }) {
 /** @param {{ timeframe: string; initialData: SectorsResponse | null; }} props */
 function SectorsList({ timeframe, initialData }) {
   const seed = initialData ?? { timeframe, sectors: [] };
-  const { data, loading } = usePolling(`/api/sectors?timeframe=${timeframe}`, 30_000, seed, {
+  const { data, loading } = usePolling(`/api/sectors?timeframe=${timeframe}`, REFRESH_MS.sectors, seed, {
     fetchImmediately: seed.sectors.length === 0,
   });
 

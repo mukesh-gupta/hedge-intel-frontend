@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ChevronRight, ExternalLink, Star, TrendingUp, TrendingDown } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 import { usePolling } from "@/lib/usePolling";
+import { REFRESH_MS } from "@/lib/refresh";
 import { useSignals } from "@/lib/SignalsProvider";
 import { sentimentStyle, signalId, isQuickSignal } from "@/lib/signal-style";
 import { aggregateSentiment } from "@/lib/sentiment-aggregate";
@@ -36,13 +37,13 @@ function isNegative(changePercent) {
 function IndexRow({ initialIndices, initialForex }) {
   const { data: indices } = usePolling(
     "/api/market-data?category=indices&history=true",
-    20_000,
+    REFRESH_MS.markets,
     initialIndices,
     { fetchImmediately: false }
   );
   const { data: forex } = usePolling(
     "/api/market-data?category=forex&history=true",
-    20_000,
+    REFRESH_MS.markets,
     initialForex,
     { fetchImmediately: false }
   );
@@ -180,7 +181,7 @@ function LatestSignalCard({ signal }) {
 
 /** @param {{ initialRegime: MarketRegimeResponse | null }} props */
 function MarketRegimeCard({ initialRegime }) {
-  const { data: regime } = usePolling("/api/market-regime", 20_000, initialRegime, {
+  const { data: regime } = usePolling("/api/market-regime", REFRESH_MS.regime, initialRegime, {
     fetchImmediately: initialRegime === null,
   });
   if (!regime) return null;
@@ -211,7 +212,7 @@ function MarketRegimeCard({ initialRegime }) {
 
 /** @param {{ initialSectors: SectorsResponse }} props */
 function SectorHeatmap({ initialSectors }) {
-  const { data } = usePolling("/api/sectors?timeframe=1D", 30_000, initialSectors, {
+  const { data } = usePolling("/api/sectors?timeframe=1D", REFRESH_MS.sectors, initialSectors, {
     fetchImmediately: initialSectors.sectors.length === 0,
   });
   const tiles = data.sectors.slice(0, 6);

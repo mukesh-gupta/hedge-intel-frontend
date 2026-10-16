@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useMemo } from "react";
 import { usePolling } from "./usePolling";
+import { REFRESH_MS } from "./refresh";
 
 /** @import { ReactNode } from "react" */
 /** @import { SignalsResponse, Signal } from "./types" */
@@ -27,7 +28,7 @@ const SignalsContext = createContext(/** @type {SignalsContextValue | null} */ (
  * @param {{ initialData: SignalsResponse; children: ReactNode; }} props
  */
 export function SignalsProvider({ initialData, children }) {
-  const { data, refetch, lastUpdated } = usePolling("/api/signals", 20_000, initialData, {
+  const { data, refetch, lastUpdated } = usePolling("/api/signals", REFRESH_MS.signals, initialData, {
     fetchImmediately: initialData.signals.length === 0,
   });
 

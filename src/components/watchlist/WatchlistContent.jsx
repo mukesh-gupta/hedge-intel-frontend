@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Plus, Trash2, TrendingUp, TrendingDown } from "lucide-react";
 import { usePolling } from "@/lib/usePolling";
+import { REFRESH_MS } from "@/lib/refresh";
 import { useWatchlistStream } from "@/lib/useWatchlistStream";
 import { toFinnhubSymbol, liveChangePercent } from "@/lib/finnhub-symbol";
 import { formatNumber } from "@/lib/format";
@@ -16,7 +17,7 @@ function isNegative(changePercent) {
 
 /** @param {{ initialData: WatchlistResponse }} props */
 export default function WatchlistContent({ initialData }) {
-  const { data, error, refetch } = usePolling("/api/watchlist", 15_000, initialData, {
+  const { data, error, refetch } = usePolling("/api/watchlist", REFRESH_MS.watchlist, initialData, {
     fetchImmediately: initialData.watchlist.length === 0,
   });
   const live = useWatchlistStream();
